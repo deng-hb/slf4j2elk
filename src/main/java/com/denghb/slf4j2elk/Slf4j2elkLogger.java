@@ -25,11 +25,8 @@ package com.denghb.slf4j2elk;
 
 import java.io.PrintStream;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
 
-import com.denghb.utils.AppHttpClient;
+import com.denghb.utils.HttpUtils;
 import com.denghb.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.event.LoggingEvent;
@@ -241,41 +238,41 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
         StringBuilder buf = new StringBuilder(32);
 
         // Append date-time if so configured
-        if (CONFIG_PARAMS.showDateTime) {
-            if (CONFIG_PARAMS.dateFormatter != null) {
+//        if (CONFIG_PARAMS.showDateTime) {
+//            if (CONFIG_PARAMS.dateFormatter != null) {
                 buf.append(getFormattedDate());
                 buf.append(' ');
-            } else {
+//            } else {
                 buf.append(System.currentTimeMillis() - START_TIME);
                 buf.append(' ');
-            }
-        }
+//            }
+//        }
 
         // Append current thread name if so configured
-        if (CONFIG_PARAMS.showThreadName) {
+//        if (CONFIG_PARAMS.showThreadName) {
             buf.append('[');
             buf.append(Thread.currentThread().getName());
             buf.append("] ");
-        }
+//        }
 
-        if (CONFIG_PARAMS.levelInBrackets)
+//        if (CONFIG_PARAMS.levelInBrackets)
             buf.append('[');
 
         // Append a readable representation of the log level
         String levelStr = renderLevel(level);
         buf.append(levelStr);
-        if (CONFIG_PARAMS.levelInBrackets)
+//        if (CONFIG_PARAMS.levelInBrackets)
             buf.append(']');
         buf.append(' ');
 
         // Append the name of the log instance if so configured
-        if (CONFIG_PARAMS.showShortLogName) {
+//        if (CONFIG_PARAMS.showShortLogName) {
             if (shortLogName == null)
                 shortLogName = computeShortName();
             buf.append(String.valueOf(shortLogName)).append(" - ");
-        } else if (CONFIG_PARAMS.showLogName) {
+//        } else if (CONFIG_PARAMS.showLogName) {
             buf.append(String.valueOf(name)).append(" - ");
-        }
+//        }
 
         // Append the message
         buf.append(message);
@@ -285,9 +282,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
         // @denghb
         // 发送http请求到ELK
         if (StringUtils.isBotBlank(CONFIG_PARAMS.server)) {
-            TreeMap<String, Object> p = new TreeMap<String, Object>();
-            p.put("", buf.toString());
-            new AppHttpClient().post(CONFIG_PARAMS.server, p);
+            HttpUtils.send(CONFIG_PARAMS.server, buf.toString());
         }
         // TODO 写入文件
 
