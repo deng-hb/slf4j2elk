@@ -282,6 +282,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
         // @denghb
         // 发送http请求到ELK
         if (StringUtils.isBotBlank(CONFIG_PARAMS.server)) {
+
             HttpUtils.send(CONFIG_PARAMS.server, buf.toString());
         }
         // TODO 写入文件

@@ -4,13 +4,7 @@ import javax.net.ssl.*;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.security.cert.X509Certificate;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.zip.GZIPInputStream;
 
 /**
  * Created by denghb on 16/8/29.
@@ -35,23 +29,21 @@ public class HttpUtils {
             out.close();
             bw.close();//使用完关闭
 
-            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {//得到服务端的返回码是否连接成功
-                //------------字节流读取服务端返回的数据------------
-                InputStream in = connection.getInputStream();
-                if (null == in) {
-                    in = connection.getErrorStream();
-                }
-                BufferedReader br = new BufferedReader(new InputStreamReader(in));
-                String str = null;
-                StringBuffer buffer = new StringBuffer();
-                while ((str = br.readLine()) != null) {//BufferedReader特有功能，一次读取一行数据
-                    buffer.append(str);
-                }
-                System.out.println(buffer);
-                in.close();
-                br.close();
-
+            //------------字节流读取服务端返回的数据------------
+            InputStream in = connection.getInputStream();
+            if (null == in) {
+                in = connection.getErrorStream();
             }
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String str = null;
+            StringBuffer buffer = new StringBuffer();
+            while ((str = br.readLine()) != null) {//BufferedReader特有功能，一次读取一行数据
+                buffer.append(str);
+            }
+            System.out.println(buffer);
+            in.close();
+            br.close();
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -73,6 +65,7 @@ public class HttpUtils {
         connection.setRequestProperty("Connection", "Keep-Alive");
         connection.setRequestProperty("User-Agent", "com.denghb.httputils");
         connection.setRequestProperty("Charset", "UTF-8");
+        connection.setRequestProperty("Content-type", "application/json");
 
         if (connection instanceof HttpsURLConnection) {
             ((HttpsURLConnection) connection).setSSLSocketFactory(getTrustAllSSLSocketFactory());
