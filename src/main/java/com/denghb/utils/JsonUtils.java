@@ -13,9 +13,11 @@ public class JsonUtils {
     public static String toJson(final String appId, final String level, final String date, final String name, final String content, final Throwable t) {
 
         // appId
+        // level
         // dateTime
         // className
         // content
+        // throwable
         StringBuffer sb = new StringBuffer("{");
         sb.append("\"appId\":\"");
         sb.append(appId);
@@ -44,8 +46,8 @@ public class JsonUtils {
         if (null == str) {
             return null;
         }
-        str = str.replaceAll("\n\t", "#L_B#");
-        str = str.replaceAll("\n", "#L_B#");
+        str = str.replaceAll("\n\t", "</br>");
+        str = str.replaceAll("\n", "</br>");
         return str;
     }
 

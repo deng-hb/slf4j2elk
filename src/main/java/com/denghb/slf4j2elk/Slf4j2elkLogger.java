@@ -270,7 +270,6 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
         // 发送http请求到ELK
         if (StringUtils.isBotBlank(CONFIG_PARAMS.server)) {
             String body = JsonUtils.toJson(CONFIG_PARAMS.id, levelStr, now, name, message, t);
-            System.out.println(body);
             HttpUtils.send(CONFIG_PARAMS.server, body);
         }
         // TODO 写入文件
