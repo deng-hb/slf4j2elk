@@ -14,13 +14,13 @@ Slf4j2elk
 ELK(elasticsearch、logstash、kibana)
 
 下载以下程序并解压运行
-官网下载（https://www.elastic.co/）打开很慢
+官网下载[https://www.elastic.co/downloads](https://www.elastic.co/downloads)打开很慢
 
 - [elasticsearch-5.2.2](https://denghb.com/dl/elasticsearch-5.2.2.zip)
 ```
 # 解压
 unzip elasticsearch-5.2.2.zip
-# 运行
+# 启动并后台运行
 cd elasticsearch-5.2.2/bin
 nohup ./elasticsearch &
 # PS：不能以root用户运行
@@ -51,7 +51,7 @@ output {
   elasticsearch { hosts => ["localhost:9200"] }
   stdout { codec => rubydebug }
 }
-# 启动
+# 启动并后台运行
 nohup ./logstash -f logstash.conf &
 ```
 
@@ -59,7 +59,7 @@ nohup ./logstash -f logstash.conf &
 ```
 # 解压
 tar -zxvf kibana-5.2.2-darwin-x86_64.tar.gz
-# 启动
+# 启动并后台运行
 cd kibana-5.2.2-darwin-x86_64/bin
 nohup ./kibana &
 ```
