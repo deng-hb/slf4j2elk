@@ -97,6 +97,7 @@ public class LoggerObject {
         buf.append(content);
 
         if (null != throwable) {
+            buf.append("  ");
             buf.append(StringUtils.throw2Str(throwable));
         }
         return buf.toString();
