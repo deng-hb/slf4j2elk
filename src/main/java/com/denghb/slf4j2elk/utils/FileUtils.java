@@ -1,7 +1,5 @@
 package com.denghb.slf4j2elk.utils;
 
-import com.denghb.slf4j2elk.domain.LoggerObject;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,6 +11,8 @@ import java.util.Date;
  */
 public class FileUtils {
 
+    private static final String lineSeparator = (String) java.security.AccessController.doPrivileged(new sun.security.action.GetPropertyAction("line.separator"));
+
     /**
      * 一个小时写一个文件
      *
@@ -21,15 +21,15 @@ public class FileUtils {
      */
     public static void write(String filePath, String log) {
         try {
-            SimpleDateFormat format = new SimpleDateFormat("yyyyMM/ddHH");
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd/HH");
             String fileName = format.format(new Date());
-            filePath = filePath + "/" + fileName + ".log";
+            filePath = filePath + "/" + fileName + "-slf4j2elk.log";
 
             checkExist(filePath);
 
             // 追加字符串
             FileWriter writer = new FileWriter(filePath, true);
-            writer.write("\n\t" + log);
+            writer.write(log + lineSeparator);
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
