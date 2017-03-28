@@ -233,6 +233,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
         if (!isLevelEnabled(level)) {
             return;
         }
+
         String now = getFormattedDate();
         String levelStr = renderLevel(level);
         LoggerObject logger = new LoggerObject(CONFIG_PARAMS.id, levelStr, now, name, message, t);

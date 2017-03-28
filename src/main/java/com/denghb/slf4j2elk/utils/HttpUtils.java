@@ -29,7 +29,8 @@ public class HttpUtils {
             out.close();
             bw.close();//使用完关闭
 
-            //------------字节流读取服务端返回的数据------------
+            // 返回信息
+
             InputStream in = connection.getInputStream();
             if (null == in) {
                 in = connection.getErrorStream();
@@ -40,9 +41,10 @@ public class HttpUtils {
             while ((str = br.readLine()) != null) {//BufferedReader特有功能，一次读取一行数据
                 buffer.append(str);
             }
-            System.out.println(buffer);
+            // System.out.println(buffer);
             in.close();
             br.close();
+
 
         } catch (Exception e) {
             e.printStackTrace();
