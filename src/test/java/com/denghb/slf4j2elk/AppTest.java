@@ -1,6 +1,5 @@
 package com.denghb.slf4j2elk;
 
-import com.denghb.utils.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,9 +13,9 @@ public class AppTest {
 
     public static void main(String... args) {
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 10000; i++) {
             logger.error("error" + i, new Exception("abcdefg"));
-
+            logger.trace("trace" + i);
             logger.debug("debug" + i);
             logger.info("info" + i);
             logger.warn("warn" + i);

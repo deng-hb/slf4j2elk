@@ -1,9 +1,8 @@
 package com.denghb.slf4j2elk;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+
 import java.io.InputStream;
-import java.io.PrintStream;
+
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.DateFormat;
@@ -17,13 +16,11 @@ import org.slf4j.helpers.Util;
  * values are computed at runtime. See {@link Slf4j2elkLogger} documentation for
  * more information.
  *
- *
  * @author Ceki G&uuml;lc&uuml;
  * @author Scott Sanders
  * @author Rod Waldhoff
  * @author Robert Burrell Donkin
  * @author C&eacute;drik LIME
- *
  * @since 1.7.25
  */
 public class Slf4j2elkLoggerConfiguration {
@@ -33,31 +30,10 @@ public class Slf4j2elkLoggerConfiguration {
     static int DEFAULT_LOG_LEVEL_DEFAULT = Slf4j2elkLogger.LOG_LEVEL_INFO;
     int defaultLogLevel = DEFAULT_LOG_LEVEL_DEFAULT;
 
-    private static final boolean SHOW_DATE_TIME_DEFAULT = false;
-    boolean showDateTime = SHOW_DATE_TIME_DEFAULT;
-
     private static final String DATE_TIME_FORMAT_STR_DEFAULT = "yyyy-MM-dd HH:mm:ss.SSS";
     private static String dateTimeFormatStr = DATE_TIME_FORMAT_STR_DEFAULT;
 
     DateFormat dateFormatter = null;
-
-    private static final boolean SHOW_THREAD_NAME_DEFAULT = true;
-    boolean showThreadName = SHOW_THREAD_NAME_DEFAULT;
-
-    final static boolean SHOW_LOG_NAME_DEFAULT = true;
-    boolean showLogName = SHOW_LOG_NAME_DEFAULT;
-
-    private static final boolean SHOW_SHORT_LOG_NAME_DEFAULT = false;
-    boolean showShortLogName = SHOW_SHORT_LOG_NAME_DEFAULT;
-
-    private static final boolean LEVEL_IN_BRACKETS_DEFAULT = false;
-    boolean levelInBrackets = LEVEL_IN_BRACKETS_DEFAULT;
-
-    private static String LOG_FILE_DEFAULT = "com/denghb/slf4j2elk";
-    private String logFile = LOG_FILE_DEFAULT;
-
-    private static final boolean CACHE_OUTPUT_STREAM_DEFAULT = false;
-    private boolean cacheOutputStream = CACHE_OUTPUT_STREAM_DEFAULT;
 
     private static final String WARN_LEVELS_STRING_DEFAULT = "WARN";
     String warnLevelString = WARN_LEVELS_STRING_DEFAULT;
@@ -79,18 +55,7 @@ public class Slf4j2elkLoggerConfiguration {
         // @denghb 初始化日志配置信息
         id = getStringProperty(Slf4j2elkLogger.LOG_ID_KEY, id);
         server = getStringProperty(Slf4j2elkLogger.LOG_SERVER_KEY, server);
-        logFile = getStringProperty(Slf4j2elkLogger.LOG_FILE_KEY, logFile);
-
-//        showLogName = getBooleanProperty(Slf4j2elkLogger.SHOW_LOG_NAME_KEY, Slf4j2elkLoggerConfiguration.SHOW_LOG_NAME_DEFAULT);
-//        showShortLogName = getBooleanProperty(Slf4j2elkLogger.SHOW_SHORT_LOG_NAME_KEY, SHOW_SHORT_LOG_NAME_DEFAULT);
-//        showDateTime = getBooleanProperty(Slf4j2elkLogger.SHOW_DATE_TIME_KEY, SHOW_DATE_TIME_DEFAULT);
-//        showThreadName = getBooleanProperty(Slf4j2elkLogger.SHOW_THREAD_NAME_KEY, SHOW_THREAD_NAME_DEFAULT);
-//        dateTimeFormatStr = getStringProperty(Slf4j2elkLogger.DATE_TIME_FORMAT_KEY, DATE_TIME_FORMAT_STR_DEFAULT);
-//        levelInBrackets = getBooleanProperty(Slf4j2elkLogger.LEVEL_IN_BRACKETS_KEY, LEVEL_IN_BRACKETS_DEFAULT);
-//        warnLevelString = getStringProperty(Slf4j2elkLogger.WARN_LEVEL_STRING_KEY, WARN_LEVELS_STRING_DEFAULT);
-
-
-//        cacheOutputStream = getBooleanProperty(Slf4j2elkLogger.CACHE_OUTPUT_STREAM_STRING_KEY, CACHE_OUTPUT_STREAM_DEFAULT);
+        file = getStringProperty(Slf4j2elkLogger.LOG_FILE_KEY, file);
 
         if (dateTimeFormatStr != null) {
             try {
@@ -143,7 +108,7 @@ public class Slf4j2elkLoggerConfiguration {
         try {
             prop = System.getProperty(name);
         } catch (SecurityException e) {
-            ; // Ignore
+            // Ignore
         }
         return (prop == null) ? properties.getProperty(name) : prop;
     }

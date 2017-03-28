@@ -26,9 +26,11 @@ package com.denghb.slf4j2elk;
 import java.io.PrintStream;
 import java.util.Date;
 
-import com.denghb.utils.HttpUtils;
-import com.denghb.utils.JsonUtils;
-import com.denghb.utils.StringUtils;
+import com.denghb.slf4j2elk.domain.LoggerObject;
+import com.denghb.slf4j2elk.utils.FileUtils;
+import com.denghb.slf4j2elk.utils.HttpUtils;
+import com.denghb.slf4j2elk.utils.JsonUtils;
+import com.denghb.slf4j2elk.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.event.LoggingEvent;
 import org.slf4j.helpers.FormattingTuple;
@@ -85,7 +87,7 @@ import org.slf4j.spi.LocationAwareLogger;
  * <code>true</code>.</li>
  * <p>
  * <li><code>org.slf4j.simpleLogger.showLogName</code> - Set to
- * <code>true</code> if you want the Logger instance name to be included in
+ * <code>true</code> if you want the LoggerObject instance name to be included in
  * output messages. Defaults to <code>true</code>.</li>
  * <p>
  * <li><code>org.slf4j.simpleLogger.showShortLogName</code> - Set to
@@ -155,7 +157,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
     protected static final int LOG_LEVEL_ERROR = LocationAwareLogger.ERROR_INT;
     // The OFF level can only be used in configuration files to disable logging.
     // It has
-    // no printing method associated with it in o.s.Logger interface.
+    // no printing method associated with it in o.s.LoggerObject interface.
     protected static final int LOG_LEVEL_OFF = LOG_LEVEL_ERROR + 10;
 
     private static boolean INITIALIZED = false;
@@ -180,10 +182,6 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * The current log level
      */
     protected int currentLogLevel = LOG_LEVEL_INFO;
-    /**
-     * The short name of this simple log instance
-     */
-    private transient String shortLogName = null;
 
     /**
      * All system properties used by <code>Slf4j2elkLogger</code> start with this
@@ -225,8 +223,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
     }
 
     /**
-     * This is our internal implementation for logging regular
-     * (non-parameterized) log messages.
+     * denghb
      *
      * @param level   One of the LOG_LEVEL_XXX constants defining the log level
      * @param message The message itself
@@ -236,44 +233,25 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
         if (!isLevelEnabled(level)) {
             return;
         }
-
-        StringBuilder buf = new StringBuilder(32);
-
         String now = getFormattedDate();
-        buf.append(now);
-        buf.append(' ');
-
-        // Append current thread name if so configured
-        buf.append('[');
-        buf.append(Thread.currentThread().getName());
-        buf.append("] ");
-        buf.append('[');
-
-        // Append a readable representation of the log level
         String levelStr = renderLevel(level);
-        buf.append(levelStr);
-        buf.append(']');
-        buf.append(' ');
+        LoggerObject logger = new LoggerObject(CONFIG_PARAMS.id, levelStr, now, name, message, t);
 
-        // Append the name of the log instance if so configured
-        shortLogName = computeShortName();
-        buf.append(String.valueOf(shortLogName)).append(" - ");
+        String log = logger.toString();
 
-        buf.append(String.valueOf(name)).append(" - ");
+        PrintStream targetStream = System.out;
+        targetStream.println(log);
+        targetStream.flush();
 
-        // Append the message
-        buf.append(message);
-
-        write(buf, t);
-
-        // @denghb
         // 发送http请求到ELK
         if (StringUtils.isBotBlank(CONFIG_PARAMS.server)) {
-            String body = JsonUtils.toJson(CONFIG_PARAMS.id, levelStr, now, name, message, t);
+            String body = JsonUtils.toJson(logger);
             HttpUtils.send(CONFIG_PARAMS.server, body);
         }
-        // TODO 写入文件
-
+        // 写入文件
+        if (StringUtils.isBotBlank(CONFIG_PARAMS.file)) {
+            FileUtils.write(CONFIG_PARAMS.file, log);
+        }
 
     }
 
@@ -291,20 +269,6 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
                 return "ERROR";
         }
         throw new IllegalStateException("Unrecognized level [" + level + "]");
-    }
-
-    void write(StringBuilder buf, Throwable t) {
-        PrintStream targetStream = System.out;
-
-        targetStream.println(buf.toString());
-        writeThrowable(t, targetStream);
-        targetStream.flush();
-    }
-
-    protected void writeThrowable(Throwable t, PrintStream targetStream) {
-        if (t != null) {
-            t.printStackTrace(targetStream);
-        }
     }
 
     private String getFormattedDate() {

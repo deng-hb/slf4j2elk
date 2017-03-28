@@ -1,4 +1,4 @@
-package com.denghb.utils;
+package com.denghb.slf4j2elk.utils;
 
 import javax.net.ssl.*;
 import java.io.*;
@@ -77,16 +77,13 @@ public class HttpUtils {
         // 信任所有证书
         TrustManager[] trustAllCerts = new TrustManager[]{
                 new X509TrustManager() {
-                    @Override
                     public X509Certificate[] getAcceptedIssuers() {
                         return null;
                     }
 
-                    @Override
                     public void checkClientTrusted(X509Certificate[] certs, String authType) {
                     }
 
-                    @Override
                     public void checkServerTrusted(X509Certificate[] certs, String authType) {
                     }
                 }};
