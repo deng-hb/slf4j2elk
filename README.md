@@ -1,8 +1,20 @@
 Slf4j2elk
 
+基于`slf4j-simple`源码修改
+```
+<dependency>
+  <groupId>org.slf4j</groupId>
+  <artifactId>slf4j-simple</artifactId>
+  <version>1.7.25</version>
+</dependency>
+```
+    
+
+
 ELK(elasticsearch、logstash、kibana)
 
 下载以下程序并解压运行
+官网下载（https://www.elastic.co/）打开很慢
 
 - [elasticsearch-5.2.2](https://denghb.com/dl/elasticsearch-5.2.2.zip)
 ```
