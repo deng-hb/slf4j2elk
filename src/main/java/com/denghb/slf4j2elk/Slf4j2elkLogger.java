@@ -239,43 +239,27 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
 
         StringBuilder buf = new StringBuilder(32);
 
-        // Append date-time if so configured
-//        if (CONFIG_PARAMS.showDateTime) {
-//            if (CONFIG_PARAMS.dateFormatter != null) {
         String now = getFormattedDate();
         buf.append(now);
         buf.append(' ');
-//            } else {
-        buf.append(System.currentTimeMillis() - START_TIME);
-        buf.append(' ');
-//            }
-//        }
 
         // Append current thread name if so configured
-//        if (CONFIG_PARAMS.showThreadName) {
         buf.append('[');
         buf.append(Thread.currentThread().getName());
         buf.append("] ");
-//        }
-
-//        if (CONFIG_PARAMS.levelInBrackets)
         buf.append('[');
 
         // Append a readable representation of the log level
         String levelStr = renderLevel(level);
         buf.append(levelStr);
-//        if (CONFIG_PARAMS.levelInBrackets)
         buf.append(']');
         buf.append(' ');
 
         // Append the name of the log instance if so configured
-//        if (CONFIG_PARAMS.showShortLogName) {
-        if (shortLogName == null)
-            shortLogName = computeShortName();
+        shortLogName = computeShortName();
         buf.append(String.valueOf(shortLogName)).append(" - ");
-//        } else if (CONFIG_PARAMS.showLogName) {
+
         buf.append(String.valueOf(name)).append(" - ");
-//        }
 
         // Append the message
         buf.append(message);
@@ -286,6 +270,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
         // 发送http请求到ELK
         if (StringUtils.isBotBlank(CONFIG_PARAMS.server)) {
             String body = JsonUtils.toJson(CONFIG_PARAMS.id, levelStr, now, name, message, t);
+            System.out.println(body);
             HttpUtils.send(CONFIG_PARAMS.server, body);
         }
         // TODO 写入文件

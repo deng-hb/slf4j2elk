@@ -10,7 +10,7 @@ import java.util.Date;
  */
 public class JsonUtils {
 
-    public static String toJson(String appId, String level, String date, String name, String content, Throwable t) {
+    public static String toJson(final String appId, final String level, final String date, final String name, final String content, final Throwable t) {
 
         // appId
         // dateTime
@@ -33,14 +33,23 @@ public class JsonUtils {
         sb.append(content);
 
         sb.append("\",\"throwable\":\"");
-        sb.append(throw2Str(t));
+        sb.append(safeStr(throw2Str(t)));
 
         sb.append("\"}");
 
         return sb.toString();
     }
 
-    private static String throw2Str(Throwable t) {
+    private static String safeStr(String str) {
+        if (null == str) {
+            return null;
+        }
+        str = str.replaceAll("\n\t", "#L_B#");
+        str = str.replaceAll("\n", "#L_B#");
+        return str;
+    }
+
+    private static String throw2Str(final Throwable t) {
         if (null == t) {
             return null;
         }
