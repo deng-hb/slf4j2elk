@@ -1,7 +1,6 @@
 package com.denghb.slf4j2elk;
 
 import com.denghb.utils.HttpUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
