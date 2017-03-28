@@ -66,6 +66,7 @@ public class Slf4j2elkLoggerConfiguration {
 
     String server = null;
     String file = null;
+    String id = "10000";
 
 
     void init() {
@@ -76,7 +77,8 @@ public class Slf4j2elkLoggerConfiguration {
             defaultLogLevel = stringToLevel(defaultLogLevelString);
 
         // @denghb 初始化日志配置信息
-        server = getStringProperty(Slf4j2elkLogger.LOG_SERVER_KEY, logFile);
+        id = getStringProperty(Slf4j2elkLogger.LOG_ID_KEY, id);
+        server = getStringProperty(Slf4j2elkLogger.LOG_SERVER_KEY, server);
         logFile = getStringProperty(Slf4j2elkLogger.LOG_FILE_KEY, logFile);
 
 //        showLogName = getBooleanProperty(Slf4j2elkLogger.SHOW_LOG_NAME_KEY, Slf4j2elkLoggerConfiguration.SHOW_LOG_NAME_DEFAULT);

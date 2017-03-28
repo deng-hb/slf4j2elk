@@ -10,33 +10,40 @@ import java.util.Date;
  */
 public class JsonUtils {
 
-    public static String toJson(String level,String content,Throwable t){
+    public static String toJson(String appId, String level, String date, String name, String content, Throwable t) {
 
         // appId
         // dateTime
         // className
-        // classPath
         // content
         StringBuffer sb = new StringBuffer("{");
-        sb.append("\"dateTime\":");
-        sb.append("\"");
-        sb.append(now());
-        sb.append("\",");
-        sb.append("\"className\":");
+        sb.append("\"appId\":\"");
+        sb.append(appId);
 
+        sb.append("\",\"level\":\"");
+        sb.append(level);
 
-        sb.append("}");
+        sb.append("\",\"dateTime\":\"");
+        sb.append(date);
 
-        return null;
+        sb.append("\",\"className\":\"");
+        sb.append(name);
+
+        sb.append("\",\"content\":\"");
+        sb.append(content);
+
+        sb.append("\",\"throwable\":\"");
+        sb.append(throw2Str(t));
+
+        sb.append("\"}");
+
+        return sb.toString();
     }
 
-    private static String now(){
-        SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss.SSS");
-        String ctime = formatter.format(new Date());
-        return ctime;
-    }
-
-    private static String throw2Str(Throwable t){
+    private static String throw2Str(Throwable t) {
+        if (null == t) {
+            return null;
+        }
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         t.printStackTrace(pw);

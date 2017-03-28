@@ -27,6 +27,7 @@ import java.io.PrintStream;
 import java.util.Date;
 
 import com.denghb.utils.HttpUtils;
+import com.denghb.utils.JsonUtils;
 import com.denghb.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.event.LoggingEvent;
@@ -191,6 +192,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
     public static final String SYSTEM_PREFIX = "com.denghb.slf4j2elk.";
 
     public static final String LOG_LEVEL_KEY = Slf4j2elkLogger.SYSTEM_PREFIX + "level";
+    public static final String LOG_ID_KEY = Slf4j2elkLogger.SYSTEM_PREFIX + "id";
     public static final String LOG_SERVER_KEY = Slf4j2elkLogger.SYSTEM_PREFIX + "server";
     public static final String LOG_FILE_KEY = Slf4j2elkLogger.SYSTEM_PREFIX + "file";
 
@@ -240,38 +242,39 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
         // Append date-time if so configured
 //        if (CONFIG_PARAMS.showDateTime) {
 //            if (CONFIG_PARAMS.dateFormatter != null) {
-                buf.append(getFormattedDate());
-                buf.append(' ');
+        String now = getFormattedDate();
+        buf.append(now);
+        buf.append(' ');
 //            } else {
-                buf.append(System.currentTimeMillis() - START_TIME);
-                buf.append(' ');
+        buf.append(System.currentTimeMillis() - START_TIME);
+        buf.append(' ');
 //            }
 //        }
 
         // Append current thread name if so configured
 //        if (CONFIG_PARAMS.showThreadName) {
-            buf.append('[');
-            buf.append(Thread.currentThread().getName());
-            buf.append("] ");
+        buf.append('[');
+        buf.append(Thread.currentThread().getName());
+        buf.append("] ");
 //        }
 
 //        if (CONFIG_PARAMS.levelInBrackets)
-            buf.append('[');
+        buf.append('[');
 
         // Append a readable representation of the log level
         String levelStr = renderLevel(level);
         buf.append(levelStr);
 //        if (CONFIG_PARAMS.levelInBrackets)
-            buf.append(']');
+        buf.append(']');
         buf.append(' ');
 
         // Append the name of the log instance if so configured
 //        if (CONFIG_PARAMS.showShortLogName) {
-            if (shortLogName == null)
-                shortLogName = computeShortName();
-            buf.append(String.valueOf(shortLogName)).append(" - ");
+        if (shortLogName == null)
+            shortLogName = computeShortName();
+        buf.append(String.valueOf(shortLogName)).append(" - ");
 //        } else if (CONFIG_PARAMS.showLogName) {
-            buf.append(String.valueOf(name)).append(" - ");
+        buf.append(String.valueOf(name)).append(" - ");
 //        }
 
         // Append the message
@@ -282,8 +285,8 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
         // @denghb
         // 发送http请求到ELK
         if (StringUtils.isBotBlank(CONFIG_PARAMS.server)) {
-
-            HttpUtils.send(CONFIG_PARAMS.server, buf.toString());
+            String body = JsonUtils.toJson(CONFIG_PARAMS.id, levelStr, now, name, message, t);
+            HttpUtils.send(CONFIG_PARAMS.server, body);
         }
         // TODO 写入文件
 
