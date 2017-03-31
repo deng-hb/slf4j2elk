@@ -245,12 +245,12 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
         targetStream.flush();
 
         // 发送http请求到ELK
-        if (StringUtils.isBotBlank(CONFIG_PARAMS.server)) {
+        if (StringUtils.isNotBlank(CONFIG_PARAMS.server)) {
             String body = JsonUtils.toJson(logger);
             HttpUtils.send(CONFIG_PARAMS.server, body);
         }
         // 写入文件
-        if (StringUtils.isBotBlank(CONFIG_PARAMS.file)) {
+        if (StringUtils.isNotBlank(CONFIG_PARAMS.file)) {
             FileUtils.write(CONFIG_PARAMS.file, log);
         }
 

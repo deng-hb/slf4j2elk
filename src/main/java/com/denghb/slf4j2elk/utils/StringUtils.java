@@ -7,6 +7,12 @@ import java.io.StringWriter;
  * Created by denghb on 2017/3/26.
  */
 public class StringUtils {
+
+    /**
+     *
+     * @param string
+     * @return
+     */
     public static boolean isBlank(final String string) {
         if (null != string && 0 < string.trim().length()) {
             return false;
@@ -14,7 +20,12 @@ public class StringUtils {
         return true;
     }
 
-    public static boolean isBotBlank(final String string) {
+    /**
+     *
+     * @param string
+     * @return
+     */
+    public static boolean isNotBlank(final String string) {
 
         return !isBlank(string);
     }

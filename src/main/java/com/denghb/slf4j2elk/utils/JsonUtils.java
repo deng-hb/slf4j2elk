@@ -7,6 +7,11 @@ import com.denghb.slf4j2elk.domain.LoggerObject;
  */
 public class JsonUtils {
 
+    /**
+     *
+     * @param logger
+     * @return
+     */
     public static String toJson(LoggerObject logger) {
 
         StringBuffer sb = new StringBuffer("{");
