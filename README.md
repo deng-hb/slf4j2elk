@@ -89,6 +89,8 @@ nohup ./kibana &
 ```
 查看日志 [Kibana](http://localhost:5601) http://localhost:5601
 
+[![](https://raw.githubusercontent.com/deng-hb/slf4j2elk/master/Kibana-1.png)]()
+[![](https://raw.githubusercontent.com/deng-hb/slf4j2elk/master/Kibana-2.png)]()
 
 
 
