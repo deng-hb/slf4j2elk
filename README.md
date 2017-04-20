@@ -9,7 +9,7 @@ Maven中使用在pom.xml
 <dependency>
   <groupId>com.denghb</groupId>
   <artifactId>slf4j2elk</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 
