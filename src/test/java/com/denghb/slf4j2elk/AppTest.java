@@ -28,6 +28,13 @@ public class AppTest {
         System.out.println(System.currentTimeMillis() - start);
 //        HttpUtils.send("http://localhost:31311","{\"a\":\"a\",\"b\":\"b\",\"c\":\"c\"}");
 //        FileUtils.checkExist("/tmp/asd/asdas.log");
+
+        String client = "don't  touch me for website";
+        if (null == client || 0 != client.indexOf("don't touch me")) {
+            System.out.println("sada");
+            return;
+        }
+
     }
 
 
