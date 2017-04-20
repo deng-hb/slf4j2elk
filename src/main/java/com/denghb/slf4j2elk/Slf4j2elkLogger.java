@@ -252,6 +252,10 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
         // 写入文件
         if (StringUtils.isNotBlank(CONFIG_PARAMS.file)) {
             FileUtils.write(CONFIG_PARAMS.file, log);
+            // 分开写错误日志文件
+            if ("ERROR".equals(levelStr)){
+                FileUtils.writeError(CONFIG_PARAMS.file,log);
+            }
         }
 
     }
