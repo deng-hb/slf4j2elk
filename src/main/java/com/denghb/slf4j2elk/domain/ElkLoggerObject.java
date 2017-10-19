@@ -5,7 +5,7 @@ import com.denghb.slf4j2elk.utils.StringUtils;
 /**
  * Created by denghb on 2017/3/28.
  */
-public class LoggerObject {
+public class ElkLoggerObject {
 
     private String appId;
     private String level;
@@ -14,7 +14,7 @@ public class LoggerObject {
     private String content;
     private Throwable throwable;
 
-    public LoggerObject(String appId, String level, String dateTime, String className, String content, Throwable throwable) {
+    public ElkLoggerObject(String appId, String level, String dateTime, String className, String content, Throwable throwable) {
         this.appId = appId;
         this.level = level;
         this.dateTime = dateTime;
@@ -101,5 +101,43 @@ public class LoggerObject {
             buf.append(StringUtils.throw2Str(throwable));
         }
         return buf.toString();
+    }
+
+    /**
+     * 返回json 字符
+     *
+     * @return
+     */
+    public String toJsonString() {
+
+        StringBuffer sb = new StringBuffer("{");
+        sb.append("\"appId\":\"");
+        sb.append(this.getAppId());
+
+        sb.append("\",\"level\":\"");
+        sb.append(this.getLevel());
+
+        sb.append("\",\"dateTime\":\"");
+        sb.append(this.getDateTime());
+
+        sb.append("\",\"className\":\"");
+        sb.append(this.getClassName());
+
+        sb.append("\",\"content\":\"");
+        sb.append(this.getContent());
+
+        sb.append("\",\"throwable\":\"");
+
+        Throwable t = this.getThrowable();
+        if (null != t) {
+            String str = StringUtils.throw2Str(t);
+            // TODO JSON换行问题
+            str = str.replaceAll("\n\t", "</br>");
+            str = str.replaceAll("\n", "</br>");
+            sb.append(str);
+        }
+        sb.append("\"}");
+
+        return sb.toString();
     }
 }

@@ -1,225 +1,71 @@
-/**
- * Copyright (c) 2004-2012 QOS.ch
- * All rights reserved.
- * <p>
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to  deal in  the Software without  restriction, including
- * without limitation  the rights to  use, copy, modify,  merge, publish,
- * distribute,  sublicense, and/or sell  copies of  the Software,  and to
- * permit persons to whom the Software  is furnished to do so, subject to
- * the following conditions:
- * <p>
- * The  above  copyright  notice  and  this permission  notice  shall  be
- * included in all copies or substantial portions of the Software.
- * <p>
- * THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
- * EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
- * MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
 package com.denghb.slf4j2elk;
 
-import java.io.PrintStream;
-import java.util.Date;
-
-import com.denghb.slf4j2elk.domain.LoggerObject;
+import com.denghb.slf4j2elk.domain.ElkLoggerObject;
+import com.denghb.slf4j2elk.utils.ReadConfigUtils;
 import com.denghb.slf4j2elk.utils.FileUtils;
 import com.denghb.slf4j2elk.utils.HttpUtils;
-import com.denghb.slf4j2elk.utils.JsonUtils;
 import com.denghb.slf4j2elk.utils.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.event.LoggingEvent;
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MarkerIgnoringBase;
 import org.slf4j.helpers.MessageFormatter;
 import org.slf4j.spi.LocationAwareLogger;
 
+import java.io.PrintStream;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
 /**
- * <p>
- * Simple implementation of {@link Logger} that sends all enabled log messages,
- * for all defined loggers, to the console ({@code System.err}). The following
- * system properties are supported to configure the behavior of this logger:
- * </p>
- * <p>
- * <ul>
- * <li><code>org.slf4j.simpleLogger.logFile</code> - The output target which can
- * be the <em>path</em> to a file, or the special values "System.out" and
- * "System.err". Default is "System.err".</li>
- * <p>
- * <li><code>org.slf4j.simpleLogger.cacheOutputStream</code> - If the output
- * target is set to "System.out" or "System.err" (see preceding entry), by
- * default, logs will be output to the latest value referenced by
- * <code>System.out/err</code> variables. By setting this
- * parameter to true, the output stream will be cached, i.e. assigned once at
- * initialization time and re-used independently of the current value referenced by
- * <code>System.out/err</code>.
- * </li>
- * <p>
- * <li><code>org.slf4j.simpleLogger.defaultLogLevel</code> - Default log level
- * for all instances of Slf4j2elkLogger. Must be one of ("trace", "debug", "info",
- * "warn", "error" or "off"). If not specified, defaults to "info".</li>
- * <p>
- * <li><code>org.slf4j.simpleLogger.log.<em>a.b.c</em></code> - Logging detail
- * level for a Slf4j2elkLogger instance named "a.b.c". Right-side value must be one
- * of "trace", "debug", "info", "warn", "error" or "off". When a Slf4j2elkLogger
- * named "a.b.c" is initialized, its level is assigned from this property. If
- * unspecified, the level of nearest parent logger will be used, and if none is
- * set, then the value specified by
- * <code>org.slf4j.simpleLogger.defaultLogLevel</code> will be used.</li>
- * <p>
- * <li><code>org.slf4j.simpleLogger.showDateTime</code> - Set to
- * <code>true</code> if you want the current date and time to be included in
- * output messages. Default is <code>false</code></li>
- * <p>
- * <li><code>org.slf4j.simpleLogger.dateTimeFormat</code> - The date and time
- * format to be used in the output messages. The pattern describing the date and
- * time format is defined by <a href=
- * "http://docs.oracle.com/javase/1.5.0/docs/api/java/text/SimpleDateFormat.html">
- * <code>SimpleDateFormat</code></a>. If the format is not specified or is
- * invalid, the number of milliseconds since start up will be output.</li>
- * <p>
- * <li><code>org.slf4j.simpleLogger.showThreadName</code> -Set to
- * <code>true</code> if you want to output the current thread name. Defaults to
- * <code>true</code>.</li>
- * <p>
- * <li><code>org.slf4j.simpleLogger.showLogName</code> - Set to
- * <code>true</code> if you want the LoggerObject instance name to be included in
- * output messages. Defaults to <code>true</code>.</li>
- * <p>
- * <li><code>org.slf4j.simpleLogger.showShortLogName</code> - Set to
- * <code>true</code> if you want the last component of the name to be included
- * in output messages. Defaults to <code>false</code>.</li>
- * <p>
- * <li><code>org.slf4j.simpleLogger.levelInBrackets</code> - Should the level
- * string be output in brackets? Defaults to <code>false</code>.</li>
- * <p>
- * <li><code>org.slf4j.simpleLogger.warnLevelString</code> - The string value
- * output for the warn level. Defaults to <code>WARN</code>.</li>
- * <p>
- * </ul>
- * <p>
- * <p>
- * In addition to looking for system properties with the names specified above,
- * this implementation also checks for a class loader resource named
- * <code>"simplelogger.properties"</code>, and includes any matching definitions
- * from this resource (if it exists).
- * </p>
- * <p>
- * <p>
- * With no configuration, the default output includes the relative time in
- * milliseconds, thread name, the level, logger name, and the message followed
- * by the line separator for the host. In log4j terms it amounts to the "%r [%t]
- * %level %logger - %m%n" pattern.
- * </p>
- * <p>
- * Sample output follows.
- * </p>
- * <p>
- * <pre>
- * 176 [main] INFO examples.Sort - Populating an array of 2 elements in reverse order.
- * 225 [main] INFO examples.SortAlgo - Entered the sort method.
- * 304 [main] INFO examples.SortAlgo - Dump of integer array:
- * 317 [main] INFO examples.SortAlgo - Element [0] = 0
- * 331 [main] INFO examples.SortAlgo - Element [1] = 1
- * 343 [main] INFO examples.Sort - The next log statement should be an error message.
- * 346 [main] ERROR examples.SortAlgo - Tried to dump an uninitialized array.
- *   at org.log4j.examples.SortAlgo.dump(SortAlgo.java:58)
- *   at org.log4j.examples.Sort.main(Sort.java:64)
- * 467 [main] INFO  examples.Sort - Exiting main method.
- * </pre>
- * <p>
- * <p>
- * This implementation is heavily inspired by
- * <a href="http://commons.apache.org/logging/">Apache Commons Logging</a>'s
- * SimpleLog.
- * </p>
+ * Created by denghb on 2017/10/19.
  *
- * @author Ceki G&uuml;lc&uuml;
- * @author Scott Sanders
- * @author Rod Waldhoff
- * @author Robert Burrell Donkin
- * @author C&eacute;drik LIME
+ * @author denghb.com
  */
 public class Slf4j2elkLogger extends MarkerIgnoringBase {
 
     private static final long serialVersionUID = -632788891211436180L;
 
-    private static long START_TIME = System.currentTimeMillis();
-
-    protected static final int LOG_LEVEL_TRACE = LocationAwareLogger.TRACE_INT;
-    protected static final int LOG_LEVEL_DEBUG = LocationAwareLogger.DEBUG_INT;
-    protected static final int LOG_LEVEL_INFO = LocationAwareLogger.INFO_INT;
-    protected static final int LOG_LEVEL_WARN = LocationAwareLogger.WARN_INT;
-    protected static final int LOG_LEVEL_ERROR = LocationAwareLogger.ERROR_INT;
-    // The OFF level can only be used in configuration files to disable logging.
-    // It has
-    // no printing method associated with it in o.s.LoggerObject interface.
-    protected static final int LOG_LEVEL_OFF = LOG_LEVEL_ERROR + 10;
-
-    private static boolean INITIALIZED = false;
-    static Slf4j2elkLoggerConfiguration CONFIG_PARAMS = null;
-
-    static void lazyInit() {
-        if (INITIALIZED) {
-            return;
-        }
-        INITIALIZED = true;
-        init();
-    }
-
-    // external software might be invoking this method directly. Do not rename
-    // or change its semantics.
-    static void init() {
-        CONFIG_PARAMS = new Slf4j2elkLoggerConfiguration();
-        CONFIG_PARAMS.init();
-    }
-
     /**
      * The current log level
      */
-    protected int currentLogLevel = LOG_LEVEL_INFO;
+    protected int currentLogLevel = LocationAwareLogger.INFO_INT;
 
-    /**
-     * All system properties used by <code>Slf4j2elkLogger</code> start with this
-     * prefix
-     */
-    public static final String SYSTEM_PREFIX = "com.denghb.slf4j2elk.";
+    private static String CONFIG_LEVEL;
+    private static String CONFIG_ID;
+    private static String CONFIG_SERVER;
+    private static String CONFIG_FILE;
+    private static String CONFIG_DEBUG;
 
-    public static final String LOG_LEVEL_KEY = Slf4j2elkLogger.SYSTEM_PREFIX + "level";
-    public static final String LOG_ID_KEY = Slf4j2elkLogger.SYSTEM_PREFIX + "id";
-    public static final String LOG_SERVER_KEY = Slf4j2elkLogger.SYSTEM_PREFIX + "server";
-    public static final String LOG_FILE_KEY = Slf4j2elkLogger.SYSTEM_PREFIX + "file";
+    private static List<String> debugPackages;
+
+    // 加载配置
+    static {
+        String SYSTEM_PREFIX = "com.denghb.slf4j2elk.";
+
+        CONFIG_LEVEL = ReadConfigUtils.getValue(SYSTEM_PREFIX + "level");
+        CONFIG_ID = ReadConfigUtils.getValue(SYSTEM_PREFIX + "id");
+        CONFIG_SERVER = ReadConfigUtils.getValue(SYSTEM_PREFIX + "server");
+        CONFIG_FILE = ReadConfigUtils.getValue(SYSTEM_PREFIX + "file");
+        CONFIG_DEBUG = ReadConfigUtils.getValue(SYSTEM_PREFIX + "debug");
+
+        if (StringUtils.isNotBlank(CONFIG_DEBUG)) {
+            String[] strings = CONFIG_DEBUG.split(",");
+            debugPackages = Arrays.asList(strings);
+        }
+
+    }
 
 
     /**
      * Package access allows only {@link Slf4j2elkLoggerFactory} to instantiate
      * Slf4j2elkLogger instances.
      */
-    Slf4j2elkLogger(String name) {
+    public Slf4j2elkLogger(String name) {
         this.name = name;
 
-        String levelString = recursivelyComputeLevelString();
-        if (levelString != null) {
-            this.currentLogLevel = Slf4j2elkLoggerConfiguration.stringToLevel(levelString);
-        } else {
-            this.currentLogLevel = CONFIG_PARAMS.defaultLogLevel;
+        if (StringUtils.isNotBlank(CONFIG_LEVEL)) {
+            currentLogLevel = renderLevel(CONFIG_LEVEL);
         }
-    }
-
-    String recursivelyComputeLevelString() {
-        String tempName = name;
-        String levelString = null;
-        int indexOfLastDot = tempName.length();
-        while ((levelString == null) && (indexOfLastDot > -1)) {
-            tempName = tempName.substring(0, indexOfLastDot);
-            levelString = CONFIG_PARAMS.getStringProperty(Slf4j2elkLogger.LOG_LEVEL_KEY + tempName, null);
-            indexOfLastDot = String.valueOf(tempName).lastIndexOf(".");
-        }
-        return levelString;
     }
 
     /**
@@ -230,14 +76,19 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * @param t       The exception whose stack trace should be logged
      */
     private void log(int level, String message, Throwable t) {
+
+
         if (!isLevelEnabled(level)) {
             return;
         }
 
-        String now = getFormattedDate();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        String now = sdf.format(new Date());
         String levelStr = renderLevel(level);
-        LoggerObject logger = new LoggerObject(CONFIG_PARAMS.id, levelStr, now, name, message, t);
+        ElkLoggerObject logger = new ElkLoggerObject(CONFIG_ID, levelStr, now, name, message, t);
 
+
+        // 输入Console
         String log = logger.toString();
 
         PrintStream targetStream = System.out;
@@ -245,49 +96,56 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
         targetStream.flush();
 
         // 发送http请求到ELK
-        if (StringUtils.isNotBlank(CONFIG_PARAMS.server)) {
-            String body = JsonUtils.toJson(logger);
-            HttpUtils.send(CONFIG_PARAMS.server, body);
+        if (StringUtils.isNotBlank(CONFIG_SERVER)) {
+            String body = logger.toJsonString();
+            HttpUtils.send(CONFIG_SERVER, body);
         }
+
         // 写入文件
-        if (StringUtils.isNotBlank(CONFIG_PARAMS.file)) {
-            FileUtils.write(CONFIG_PARAMS.file, log);
+        if (StringUtils.isNotBlank(CONFIG_FILE)) {
+
+            FileUtils.write(CONFIG_FILE, log);
             // 分开写错误日志文件
-            if ("ERROR".equals(levelStr)){
-                FileUtils.writeError(CONFIG_PARAMS.file,log);
+            if (LocationAwareLogger.ERROR_INT == level) {
+                FileUtils.writeError(CONFIG_FILE, log);
             }
         }
 
     }
 
-    protected String renderLevel(int level) {
+    private String renderLevel(int level) {
         switch (level) {
-            case LOG_LEVEL_TRACE:
+            case LocationAwareLogger.TRACE_INT:
                 return "TRACE";
-            case LOG_LEVEL_DEBUG:
-                return ("DEBUG");
-            case LOG_LEVEL_INFO:
+            case LocationAwareLogger.DEBUG_INT:
+                return "DEBUG";
+            case LocationAwareLogger.INFO_INT:
                 return "INFO";
-            case LOG_LEVEL_WARN:
-                return CONFIG_PARAMS.warnLevelString;
-            case LOG_LEVEL_ERROR:
+            case LocationAwareLogger.WARN_INT:
+                return "WARN";
+            case LocationAwareLogger.ERROR_INT:
                 return "ERROR";
         }
         throw new IllegalStateException("Unrecognized level [" + level + "]");
     }
 
-    private String getFormattedDate() {
-        Date now = new Date();
-        String dateText;
-        synchronized (CONFIG_PARAMS.dateFormatter) {
-            dateText = CONFIG_PARAMS.dateFormatter.format(now);
+
+    private int renderLevel(String level) {
+        if ("TRACE".equalsIgnoreCase(level)) {
+            return LocationAwareLogger.TRACE_INT;
+        } else if ("DEBUG".equalsIgnoreCase(level)) {
+            return LocationAwareLogger.DEBUG_INT;
+        } else if ("INFO".equalsIgnoreCase(level)) {
+            return LocationAwareLogger.INFO_INT;
+        } else if ("WARN".equalsIgnoreCase(level)) {
+            return LocationAwareLogger.WARN_INT;
+        } else if ("ERROR".equalsIgnoreCase(level)) {
+            return LocationAwareLogger.ERROR_INT;
+        } else {
+            throw new IllegalStateException("Unrecognized level [" + level + "]");
         }
-        return dateText;
     }
 
-    private String computeShortName() {
-        return name.substring(name.lastIndexOf(".") + 1);
-    }
 
     /**
      * For formatted messages, first substitute arguments and then log.
@@ -326,6 +184,16 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * @param logLevel is this level enabled?
      */
     protected boolean isLevelEnabled(int logLevel) {
+
+        // 指定包debug
+        if (LocationAwareLogger.DEBUG_INT == logLevel && null != debugPackages) {
+            for (String p : debugPackages) {
+                if (name.startsWith(p)) {
+                    return true;
+                }
+            }
+        }
+
         // log level are numerically ordered so can use simple numeric
         // comparison
         return (logLevel >= currentLogLevel);
@@ -335,7 +203,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * Are {@code trace} messages currently enabled?
      */
     public boolean isTraceEnabled() {
-        return isLevelEnabled(LOG_LEVEL_TRACE);
+        return isLevelEnabled(LocationAwareLogger.TRACE_INT);
     }
 
     /**
@@ -343,7 +211,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * the format outlined above.
      */
     public void trace(String msg) {
-        log(LOG_LEVEL_TRACE, msg, null);
+        log(LocationAwareLogger.TRACE_INT, msg, null);
     }
 
     /**
@@ -351,7 +219,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * TRACE according to the format outlined above.
      */
     public void trace(String format, Object param1) {
-        formatAndLog(LOG_LEVEL_TRACE, format, param1, null);
+        formatAndLog(LocationAwareLogger.TRACE_INT, format, param1, null);
     }
 
     /**
@@ -359,7 +227,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * TRACE according to the format outlined above.
      */
     public void trace(String format, Object param1, Object param2) {
-        formatAndLog(LOG_LEVEL_TRACE, format, param1, param2);
+        formatAndLog(LocationAwareLogger.TRACE_INT, format, param1, param2);
     }
 
     /**
@@ -367,21 +235,21 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * TRACE according to the format outlined above.
      */
     public void trace(String format, Object... argArray) {
-        formatAndLog(LOG_LEVEL_TRACE, format, argArray);
+        formatAndLog(LocationAwareLogger.TRACE_INT, format, argArray);
     }
 
     /**
      * Log a message of level TRACE, including an exception.
      */
     public void trace(String msg, Throwable t) {
-        log(LOG_LEVEL_TRACE, msg, t);
+        log(LocationAwareLogger.TRACE_INT, msg, t);
     }
 
     /**
      * Are {@code debug} messages currently enabled?
      */
     public boolean isDebugEnabled() {
-        return isLevelEnabled(LOG_LEVEL_DEBUG);
+        return isLevelEnabled(LocationAwareLogger.DEBUG_INT);
     }
 
     /**
@@ -389,7 +257,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * the format outlined above.
      */
     public void debug(String msg) {
-        log(LOG_LEVEL_DEBUG, msg, null);
+        log(LocationAwareLogger.DEBUG_INT, msg, null);
     }
 
     /**
@@ -397,7 +265,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * DEBUG according to the format outlined above.
      */
     public void debug(String format, Object param1) {
-        formatAndLog(LOG_LEVEL_DEBUG, format, param1, null);
+        formatAndLog(LocationAwareLogger.DEBUG_INT, format, param1, null);
     }
 
     /**
@@ -405,7 +273,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * DEBUG according to the format outlined above.
      */
     public void debug(String format, Object param1, Object param2) {
-        formatAndLog(LOG_LEVEL_DEBUG, format, param1, param2);
+        formatAndLog(LocationAwareLogger.DEBUG_INT, format, param1, param2);
     }
 
     /**
@@ -413,21 +281,21 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * DEBUG according to the format outlined above.
      */
     public void debug(String format, Object... argArray) {
-        formatAndLog(LOG_LEVEL_DEBUG, format, argArray);
+        formatAndLog(LocationAwareLogger.DEBUG_INT, format, argArray);
     }
 
     /**
      * Log a message of level DEBUG, including an exception.
      */
     public void debug(String msg, Throwable t) {
-        log(LOG_LEVEL_DEBUG, msg, t);
+        log(LocationAwareLogger.DEBUG_INT, msg, t);
     }
 
     /**
      * Are {@code info} messages currently enabled?
      */
     public boolean isInfoEnabled() {
-        return isLevelEnabled(LOG_LEVEL_INFO);
+        return isLevelEnabled(LocationAwareLogger.INFO_INT);
     }
 
     /**
@@ -435,7 +303,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * the format outlined above.
      */
     public void info(String msg) {
-        log(LOG_LEVEL_INFO, msg, null);
+        log(LocationAwareLogger.INFO_INT, msg, null);
     }
 
     /**
@@ -443,7 +311,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * INFO according to the format outlined above.
      */
     public void info(String format, Object arg) {
-        formatAndLog(LOG_LEVEL_INFO, format, arg, null);
+        formatAndLog(LocationAwareLogger.INFO_INT, format, arg, null);
     }
 
     /**
@@ -451,7 +319,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * INFO according to the format outlined above.
      */
     public void info(String format, Object arg1, Object arg2) {
-        formatAndLog(LOG_LEVEL_INFO, format, arg1, arg2);
+        formatAndLog(LocationAwareLogger.INFO_INT, format, arg1, arg2);
     }
 
     /**
@@ -459,21 +327,21 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * INFO according to the format outlined above.
      */
     public void info(String format, Object... argArray) {
-        formatAndLog(LOG_LEVEL_INFO, format, argArray);
+        formatAndLog(LocationAwareLogger.INFO_INT, format, argArray);
     }
 
     /**
      * Log a message of level INFO, including an exception.
      */
     public void info(String msg, Throwable t) {
-        log(LOG_LEVEL_INFO, msg, t);
+        log(LocationAwareLogger.INFO_INT, msg, t);
     }
 
     /**
      * Are {@code warn} messages currently enabled?
      */
     public boolean isWarnEnabled() {
-        return isLevelEnabled(LOG_LEVEL_WARN);
+        return isLevelEnabled(LocationAwareLogger.WARN_INT);
     }
 
     /**
@@ -481,7 +349,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * according to the format outlined above.
      */
     public void warn(String msg) {
-        log(LOG_LEVEL_WARN, msg, null);
+        log(LocationAwareLogger.WARN_INT, msg, null);
     }
 
     /**
@@ -489,7 +357,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * WARN according to the format outlined above.
      */
     public void warn(String format, Object arg) {
-        formatAndLog(LOG_LEVEL_WARN, format, arg, null);
+        formatAndLog(LocationAwareLogger.WARN_INT, format, arg, null);
     }
 
     /**
@@ -497,7 +365,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * WARN according to the format outlined above.
      */
     public void warn(String format, Object arg1, Object arg2) {
-        formatAndLog(LOG_LEVEL_WARN, format, arg1, arg2);
+        formatAndLog(LocationAwareLogger.WARN_INT, format, arg1, arg2);
     }
 
     /**
@@ -505,21 +373,21 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * WARN according to the format outlined above.
      */
     public void warn(String format, Object... argArray) {
-        formatAndLog(LOG_LEVEL_WARN, format, argArray);
+        formatAndLog(LocationAwareLogger.WARN_INT, format, argArray);
     }
 
     /**
      * Log a message of level WARN, including an exception.
      */
     public void warn(String msg, Throwable t) {
-        log(LOG_LEVEL_WARN, msg, t);
+        log(LocationAwareLogger.WARN_INT, msg, t);
     }
 
     /**
      * Are {@code error} messages currently enabled?
      */
     public boolean isErrorEnabled() {
-        return isLevelEnabled(LOG_LEVEL_ERROR);
+        return isLevelEnabled(LocationAwareLogger.ERROR_INT);
     }
 
     /**
@@ -527,7 +395,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * according to the format outlined above.
      */
     public void error(String msg) {
-        log(LOG_LEVEL_ERROR, msg, null);
+        log(LocationAwareLogger.ERROR_INT, msg, null);
     }
 
     /**
@@ -535,7 +403,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * ERROR according to the format outlined above.
      */
     public void error(String format, Object arg) {
-        formatAndLog(LOG_LEVEL_ERROR, format, arg, null);
+        formatAndLog(LocationAwareLogger.ERROR_INT, format, arg, null);
     }
 
     /**
@@ -543,7 +411,7 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * ERROR according to the format outlined above.
      */
     public void error(String format, Object arg1, Object arg2) {
-        formatAndLog(LOG_LEVEL_ERROR, format, arg1, arg2);
+        formatAndLog(LocationAwareLogger.ERROR_INT, format, arg1, arg2);
     }
 
     /**
@@ -551,16 +419,13 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
      * ERROR according to the format outlined above.
      */
     public void error(String format, Object... argArray) {
-        formatAndLog(LOG_LEVEL_ERROR, format, argArray);
+        formatAndLog(LocationAwareLogger.ERROR_INT, format, argArray);
     }
 
-    /**
-     * Log a message of level ERROR, including an exception.
-     */
     public void error(String msg, Throwable t) {
-        log(LOG_LEVEL_ERROR, msg, t);
+        log(LocationAwareLogger.ERROR_INT, msg, t);
     }
-
+/*
     public void log(LoggingEvent event) {
         int levelInt = event.getLevel().toInt();
 
@@ -570,5 +435,5 @@ public class Slf4j2elkLogger extends MarkerIgnoringBase {
         FormattingTuple tp = MessageFormatter.arrayFormat(event.getMessage(), event.getArgumentArray(), event.getThrowable());
         log(levelInt, tp.getMessage(), event.getThrowable());
     }
-
+*/
 }

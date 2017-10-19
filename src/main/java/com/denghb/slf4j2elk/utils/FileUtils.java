@@ -11,6 +11,7 @@ import java.util.Date;
  */
 public class FileUtils {
 
+    // 换行
     private static final String lineSeparator = (String) java.security.AccessController.doPrivileged(new sun.security.action.GetPropertyAction("line.separator"));
 
     /**
@@ -68,9 +69,16 @@ public class FileUtils {
      */
     public static void checkExist(String filePath) throws IOException {
         File file = new File(filePath);
-        if (!file.getParentFile().exists())
+
+        // 文件夹是否存在
+        if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
-        if (!file.exists())
+        }
+
+        // 文件是否存在
+        if (!file.exists()) {
             file.createNewFile();
+
+        }
     }
 }

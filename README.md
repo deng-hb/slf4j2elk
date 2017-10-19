@@ -9,7 +9,7 @@ Maven中使用在pom.xml
 <dependency>
   <groupId>com.denghb</groupId>
   <artifactId>slf4j2elk</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 </dependency>
 ```
 
@@ -32,7 +32,7 @@ ELK(elasticsearch、logstash、kibana) 服务安装运行
 下载以下程序并解压运行
 官网下载[https://www.elastic.co/downloads](https://www.elastic.co/downloads)打开很慢
 
-- [elasticsearch-5.2.2](https://denghb.com/dl/elasticsearch-5.2.2.zip)
+- [elasticsearch-5.2.2]
 ```
 # 解压
 unzip elasticsearch-5.2.2.zip
@@ -43,7 +43,7 @@ nohup ./elasticsearch &
 ```
 查看服务状态[Elasticsearch](http://localhost:9200) http://localhost:9200
 
-- [logstash-5.2.2](https://denghb.com/dl/logstash-5.2.2.zip)
+- [logstash-5.2.2]
 ```
 # 解压
 unzip logstash-5.2.2.zip
@@ -79,7 +79,7 @@ tail -100f nohup.out
 curl -H "Content-Type: application/json" -XPUT 'http://127.0.0.1:31311' -d '{"appId":"10001","level":"ERROR","content":"hello world"}'
 ```
 
-- [kibana-5.2.2](https://denghb.com/dl/kibana-5.2.2-darwin-x86_64.tar.gz)
+- [kibana-5.2.2]
 ```
 # 解压
 tar -zxvf kibana-5.2.2-darwin-x86_64.tar.gz
@@ -87,7 +87,7 @@ tar -zxvf kibana-5.2.2-darwin-x86_64.tar.gz
 cd kibana-5.2.2-darwin-x86_64/bin
 nohup ./kibana &
 ```
-查看日志 [Kibana](http://localhost:5601) http://localhost:5601
+查看日志 [http://localhost:5601](kibana)
 
 [![](https://raw.githubusercontent.com/deng-hb/slf4j2elk/master/Kibana-1.png)]()
 [![](https://raw.githubusercontent.com/deng-hb/slf4j2elk/master/Kibana-2.png)]()
