@@ -131,9 +131,7 @@ public class ElkLoggerObject {
         Throwable t = this.getThrowable();
         if (null != t) {
             String str = StringUtils.throw2Str(t);
-            // TODO JSON换行问题
-            str = str.replaceAll("\n\t", "</br>");
-            str = str.replaceAll("\n", "</br>");
+            str = str.replaceAll("\n", "\\n");
             sb.append(str);
         }
         sb.append("\"}");
